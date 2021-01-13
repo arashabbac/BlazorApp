@@ -1,0 +1,232 @@
+﻿@page "/authors"
+@inject IAuthorService authorService;
+@inject HttpClient Http;
+@inject IJSRuntime JSRuntime;
+@using BlazorApp.Data;
+
+<h3>Authors</h3>
+<div class="col-12">
+    <h3>
+        <b>
+            Enter Author Information
+        </b>
+    </h3>
+    <hr />
+    <ServerValidations IsVisible="@IsVisible" Result="@Result">
+        <span>Author: </span>@RecordName
+    </ServerValidations>
+
+
+    <EditForm Model="@author" OnValidSubmit="@SaveAuthor">
+        @*<DataAnnotationsValidator />*@
+        <div class="col-12 row">
+            <label class="col-2 font-weight-bold">first name :</label>
+            <input @ref="firstNameText" class="form-control col-3" @bind="author.FirstName" placeholder="first name" />
+            &nbsp;<ValidationMessage For="@(() => author.FirstName)" />
+        </div>
+        <br />
+        <div class="col-12 row">
+            <label class="col-2 font-weight-bold">last name :</label>
+            <InputText class="form-control col-3" @bind-Value="author.LastName" placeholder="last name" />
+            &nbsp;<ValidationMessage For="@(() => author.LastName)" />
+        </div>
+        <br />
+        <div class="col-12 row">
+            @*<label class="col-2 font-weight-bold">city :</label>*@
+            @*<InputSelect @bind-Value="author.City" class="form-control col-3">
+                    @if(Cities != null)
+                    {
+                        @foreach(var city in Cities)
+                        {
+                            <option value="@city">@city</option>
+                        }
+                    }
+                </InputSelect>*@
+            @*<InputText class="form-control col-3" @bind-Value="author.City" placeholder="City" />
+                &nbsp;<ValidationMessage For="@(() => author.City)" />*@
+            @*<SelectCity></SelectCity>*@
+        </div>
+        <br />
+        <div class="col-12 row">
+            <label class="col-2 font-weight-bold">email address :</label>
+            <InputText class="form-control col-3" @bind-Value="author.EmailAddress" placeholder="email address" />
+            &nbsp;<ValidationMessage For="@(() => author.EmailAddress)" />
+        </div>
+        <br />
+        <div class="col-12 row">
+            <label class="col-2 font-weight-bold">Salary :</label>
+            <InputNumber class="form-control col-3" @bind-Value="author.Salary" placeholder="Salary" />
+            &nbsp;<ValidationMessage For="@(() => author.Salary)" />
+        </div>
+        <br />
+        <div class="col-12 row">
+            <span class="col-2"></span>
+            <input type="submit" class="form-control col-1 btn btn-primary" value="Save" />
+            <span>&nbsp;</span>
+            <input type="button" class="form-control col-1 btn btn-primary" value="Clear" />
+        </div>
+    </EditForm>
+</div>
+<br />
+
+<div class="col-10">
+
+    <h3>
+        <b>
+            Authors
+        </b>
+    </h3>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Author Id</th>
+                <th>First Name</th>
+                <th>Last Name</th>
+                @*<th>City</th>*@
+                <th>Email Address</th>
+                @*<th>Salary</th>*@
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var author in authorList)
+            {
+                <tr>
+                    <td>
+                        <NavLink href="@string.Format("/authors/authordetail/{0}",@author.AuthorId)">
+                            @author.AuthorId
+                        </NavLink>
+                    </td>
+                    <td>@author.FirstName</td>
+                    <td>@author.LastName</td>
+                    @*<td>@author.City</td>*@
+                    <td>@author.EmailAddress</td>
+                    @*<td>@author.Salary</td>*@
+                    <td>
+                        <a class="btn btn-outline-danger" @onclick="(() => DeleteAuthor(author.AuthorId))" >Delete</a>
+                        <a class="btn btn-outline-warning" @onclick="(() => EditAuthor(author))" >Edit</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    @*@foreach (Data.Author author in AuthorList)
+        {
+            <div class="col-12 row">
+                <div class="col-2">
+                    <NavLink href=@string.Format("/authors/authordetail/{0}",@author.AuthorId)>
+                        @author.AuthorId
+                    </NavLink>
+                </div>
+                <div class="col-2">
+                    @author.FirstName @author.LastName
+                </div>
+            </div>
+        }*@
+</div>
+
+<hr />
+
+<div class="col-12 row">@authorService.GetCreationDate()</div>
+<div class="col-12 row">@authorService.GetVersion()</div>
+
+
+@code {
+
+    public Data.Author author { get; set; }
+    public List<Data.Author> authorList { get; set; }
+    public string[] Cities { get; set; }
+    ElementReference firstNameText;
+
+
+    protected override async System.Threading.Tasks.Task OnInitializedAsync()
+    {
+        Console.WriteLine("Authors : - OnInitializedAsync");
+
+        //authorService = new BlazorApp.Data.AuthorService();
+        //AuthorList = authorService.GetAuthors();
+        author = new Data.Author();
+        //authorList = authorService.GetAuthors();
+
+        authorList = new List<Author>();
+        authorList = await Http.GetJsonAsync<List<Author>>("http://localhost:4615/api/Authors");
+        authorList = authorList.OrderByDescending(current => current.AuthorId).ToList();
+
+        await base.OnInitializedAsync();
+    }
+
+
+    public bool IsVisible { get; set; }
+    public string RecordName { get; set; }
+    public bool Result { get; set; }
+
+    //public List<Data.Author> AuthorList { get; set; }
+    //public AuthorService authorService { get; set; }
+
+    protected override async System.Threading.Tasks.Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
+        //if(firstRender && Cities == null)
+        //{
+        //    Cities = await JSRuntime.InvokeAsync<string[]>("getCities");
+
+        //    StateHasChanged();
+        //}
+    }
+
+    protected override void OnInitialized()
+    {
+        Console.WriteLine("Authors : - OnInitialized");
+        base.OnInitialized();
+    }
+
+    private async System.Threading.Tasks.Task LoadAuthors()
+    {
+        authorList = await Http.GetJsonAsync<List<Author>>("http://localhost:4615/api/Authors");
+        authorList = authorList.OrderByDescending(current => current.AuthorId).ToList();
+
+        StateHasChanged();
+    }
+
+    private async System.Threading.Tasks.Task SaveAuthor()
+    {
+        //author.AuthorId = authorService.GetNewAuthorId();
+        //Result = authorService.SaveAuthor(author);
+        if(author.AuthorId == 0)
+        
+            await Http.PostAsJsonAsync("http://localhost:4615/api/Authors", author);
+        
+        else
+        
+            await Http.PutAsJsonAsync("http://localhost:4615/api/Authors" + author.AuthorId , author);
+        
+
+
+        await LoadAuthors();
+
+        Result = true;
+        IsVisible = true;
+        var firstName = author.FirstName;
+        var lastName = author.LastName;
+        RecordName = $"{ firstName } { lastName }";
+        author = new Data.Author();
+
+        //await JSRuntime.InvokeVoidAsync("SaveMessage" , firstName , lastName);
+        await JSRuntime.InvokeVoidAsync("SetFocusOnElement", firstNameText);
+    }
+
+    private async System.Threading.Tasks.Task DeleteAuthor(int authorId)
+    {
+        await Http.DeleteAsync("http://localhost:4615/api/Authors/" + authorId);
+
+        LoadAuthors();
+
+    }
+
+    private void EditAuthor(Author argAuthor)
+    {
+        author = argAuthor;
+    }
+}
