@@ -3,7 +3,15 @@
 
 Welcome to your new app.
 
-<Component1></Component1>
+<AuthorizeView>
+    <Authorized>
+        <p>Welcome , @context.User.Identity.Name</p>
+    </Authorized>
+    <NotAuthorized>
+        <p>You are signed out!!</p>
+    </NotAuthorized>
+</AuthorizeView>
 
-<SurveyPrompt Title="How is Blazor working for you?" />
+@*<Component1></Component1>*@
 
+ 

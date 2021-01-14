@@ -1,0 +1,48 @@
+﻿@page "/login"
+@inject AuthenticationStateProvider AuthenticationStateProvider;
+@inject NavigationManager NavigationManager;
+@inject Blazored.SessionStorage.ISessionStorageService sessionStorage
+
+<EditForm Model="@user" OnValidSubmit="@ValidateUser">
+    <h4 class="text-center" style="font-weight:bold;color:purple;">
+        Book Stores Login
+    </h4>
+    <div class="container">
+        <div class="row text-center">
+            <div class="col-12">
+                <input class="form-control" type="email" @bind="user.EmailAddress" placeholder="Email Address..." />
+            </div>
+            <div class="col-12 mt-2">
+                <input class="form-control" type="password" @bind="user.Password" placeholder="Password..." />
+            </div>
+            <div class="col-2 mt-2">
+                <input type="submit" class="form-control btn btn-outline-primary" value="Login" />
+            </div>
+            <div class="col-2 mt-2">
+                <a class="btn btn-outline-success" href="/signup">Sign Up</a>
+            </div>
+
+        </div>
+    </div>
+</EditForm>
+
+
+@code {
+    private Data.User user;
+
+    protected override System.Threading.Tasks.Task OnInitializedAsync()
+    {
+        user = new Data.User();
+        return base.OnInitializedAsync();
+    }
+
+    private async System.Threading.Tasks.Task<bool> ValidateUser()
+    {
+        ((Data.CustomAuthenticationStateProvider)AuthenticationStateProvider).MarkUserAsAuthenticated(user.EmailAddress);
+        NavigationManager.NavigateTo("/");
+
+        await sessionStorage.SetItemAsync("emailAddress", user.EmailAddress);
+
+        return await System.Threading.Tasks.Task.FromResult(true);
+    }
+}

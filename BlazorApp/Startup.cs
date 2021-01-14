@@ -1,8 +1,10 @@
 using BlazorApp.Data;
+using Blazored.SessionStorage;
 using EmbeddedBlazorContent;
 using MatBlazor;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.Extensions.Configuration;
@@ -35,6 +37,9 @@ namespace BlazorApp
 
             services.AddSingleton<IAuthorService, AuthorService>();
             services.AddSingleton<IPublisherService, PublisherService>();
+            services.AddBlazoredSessionStorage();
+
+            services.AddScoped<AuthenticationStateProvider, CustomAuthenticationStateProvider>();
 
             services.AddSingleton<HttpClient>();
             services.AddMatBlazor();
@@ -60,6 +65,9 @@ namespace BlazorApp
             app.UseEmbeddedBlazorContent(typeof(MatBlazor.BaseMatComponent).Assembly);
 
             app.UseRouting();
+
+            app.UseAuthentication();
+            app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {
