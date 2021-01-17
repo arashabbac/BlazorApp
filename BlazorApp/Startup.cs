@@ -1,4 +1,5 @@
 using BlazorApp.Data;
+using BlazorApp.Services;
 using Blazored.SessionStorage;
 using EmbeddedBlazorContent;
 using MatBlazor;
@@ -40,6 +41,12 @@ namespace BlazorApp
             services.AddBlazoredSessionStorage();
 
             services.AddScoped<AuthenticationStateProvider, CustomAuthenticationStateProvider>();
+
+            services.AddHttpClient<IUserService , UserService>(http => 
+            {
+                http.BaseAddress = new Uri("http://localhost:4615/api/Users/");
+                http.DefaultRequestHeaders.Add("User-Agent", "BlazorServer");
+            });
 
             services.AddSingleton<HttpClient>();
             services.AddMatBlazor();

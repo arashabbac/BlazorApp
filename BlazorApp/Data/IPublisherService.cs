@@ -2,9 +2,9 @@
 {
     interface IPublisherService
     {
-        System.Collections.Generic.List<Publisher> GetPublishers();
-        Publisher GetPublisherById(string pubId);
-        bool SavePublisher(Publisher publisher);
+        System.Collections.Generic.List<Data.Publisher> GetPublishers();
+        Data.Publisher GetPublisherById(string pubId);
+        bool SavePublisher(Data.Publisher publisher);
         void DeletePublisher(string pubId);
     }
 }

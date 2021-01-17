@@ -2,6 +2,7 @@
 @inject AuthenticationStateProvider AuthenticationStateProvider;
 @inject NavigationManager NavigationManager;
 @inject Blazored.SessionStorage.ISessionStorageService sessionStorage
+@inject Services.IUserService userService
 
 <EditForm Model="@user" OnValidSubmit="@ValidateUser">
     <h4 class="text-center" style="font-weight:bold;color:purple;">
@@ -22,6 +23,11 @@
                 <a class="btn btn-outline-success" href="/signup">Sign Up</a>
             </div>
 
+            <div class="col-12 row">
+                <span>
+                    @LoginMessage
+                </span>
+            </div>
         </div>
     </div>
 </EditForm>
@@ -29,6 +35,7 @@
 
 @code {
     private Data.User user;
+    public string LoginMessage { get; set; }
 
     protected override System.Threading.Tasks.Task OnInitializedAsync()
     {
@@ -38,10 +45,48 @@
 
     private async System.Threading.Tasks.Task<bool> ValidateUser()
     {
-        ((Data.CustomAuthenticationStateProvider)AuthenticationStateProvider).MarkUserAsAuthenticated(user.EmailAddress);
-        NavigationManager.NavigateTo("/");
+        //string serializedUser =  Newtonsoft.Json.JsonConvert.SerializeObject(user);
 
-        await sessionStorage.SetItemAsync("emailAddress", user.EmailAddress);
+        ////HttpRequestMessage httpRequestMessage = new HttpRequestMessage();
+        ////httpRequestMessage.Method = new HttpMethod("POST");
+        ////httpRequestMessage.RequestUri = new Uri("http://localhost:4615/api/Users/Login");
+
+        //HttpRequestMessage httpRequestMessage = 
+        //    new HttpRequestMessage(HttpMethod.Post , "Login");
+
+
+        //httpRequestMessage.Content = new StringContent(serializedUser);
+        //httpRequestMessage.Content.Headers.ContentType =
+        //    new System.Net.Http.Headers.MediaTypeHeaderValue("application/json");
+
+        //var client = httpClientFactory.CreateClient("UserService");
+
+        //var response =
+        //   await client.SendAsync(httpRequestMessage);
+
+        //var responseStatusCode = response.StatusCode;
+        //var responseBody =
+        //    await response.Content.ReadAsStringAsync();
+
+        var returnedUser =
+            await userService.LoginAsync(user);
+
+        if(returnedUser.EmailAddress != null)
+        {
+            //Data.User returnedUser =
+            //        Newtonsoft.Json.JsonConvert.DeserializeObject<Data.User>(responseBody);
+
+            await sessionStorage.SetItemAsync("emailAddress", user.EmailAddress);
+            await sessionStorage.SetItemAsync("token", user.AccessToken);
+
+
+            ((Data.CustomAuthenticationStateProvider)AuthenticationStateProvider).MarkUserAsAuthenticated(user.EmailAddress);
+            NavigationManager.NavigateTo("/");
+        }
+        else
+        {
+            LoginMessage = "Invalid Username or password!";
+        }
 
         return await System.Threading.Tasks.Task.FromResult(true);
     }
