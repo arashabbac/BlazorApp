@@ -3,8 +3,8 @@
     interface IPublisherService
     {
         System.Collections.Generic.List<Data.Publisher> GetPublishers();
-        Data.Publisher GetPublisherById(string pubId);
+        Data.Publisher GetPublisherById(int pubId);
         bool SavePublisher(Data.Publisher publisher);
-        void DeletePublisher(string pubId);
+        void DeletePublisher(int pubId);
     }
 }

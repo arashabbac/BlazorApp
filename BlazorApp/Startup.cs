@@ -36,8 +36,11 @@ namespace BlazorApp
             services.AddServerSideBlazor();
             services.AddSingleton<WeatherForecastService>();
 
-            services.AddSingleton<IAuthorService, AuthorService>();
-            services.AddSingleton<IPublisherService, PublisherService>();
+            var appSettingsSection = Configuration.GetSection("AppSettings");
+            services.Configure<AppSettings>(appSettingsSection);
+
+            //services.AddSingleton<IAuthorService, AuthorService>();
+            //services.AddSingleton<IPublisherService, PublisherService>();
             services.AddBlazoredSessionStorage();
 
             services.AddScoped<AuthenticationStateProvider, CustomAuthenticationStateProvider>();
@@ -47,6 +50,12 @@ namespace BlazorApp
                 http.BaseAddress = new Uri("http://localhost:4615/api/Users/");
                 http.DefaultRequestHeaders.Add("User-Agent", "BlazorServer");
             });
+
+            services.AddHttpClient<IBookStoreService<Author>, BookStoreService<Author>>()
+                .AddHttpMessageHandler<Handlers.ValidateHeaderHandlers>();
+
+            services.AddHttpClient<IBookStoreService<Publisher>, BookStoreService<Publisher>>()
+                .AddHttpMessageHandler<Handlers.ValidateHeaderHandlers>();
 
             services.AddSingleton<HttpClient>();
             services.AddMatBlazor();

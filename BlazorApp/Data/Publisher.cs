@@ -2,7 +2,7 @@
 {
     public class Publisher
     {
-        public string Pub_Id { get; set; }
+        public int Pub_Id { get; set; }
         public string Publisher_Name { get; set; }
         public string City { get; set; }
         public string State { get; set; }
@@ -13,7 +13,7 @@
 
         }
 
-        public Publisher(string pub_id, string publisher_name, string city, string state, string country)
+        public Publisher(int pub_id, string publisher_name, string city, string state, string country)
         {
             Pub_Id = pub_id;
             Publisher_Name = publisher_name;
